@@ -1,0 +1,2787 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocPodcast Studio</title>
+<style>
+/* ============================================
+   CSS Variables - Theme Management
+   ============================================ */
+:root {
+  --bg-primary: #0f1117;
+  --bg-secondary: #1a1d27;
+  --bg-tertiary: #242836;
+  --bg-card: #1e2230;
+  --bg-hover: #2a2f40;
+  --bg-input: #161923;
+  --border-color: #2e3348;
+  --border-active: #4f6ef7;
+  --text-primary: #e8eaf0;
+  --text-secondary: #9ca3b8;
+  --text-muted: #6b7394;
+  --accent-primary: #4f6ef7;
+  --accent-secondary: #7c5cfc;
+  --accent-success: #34d399;
+  --accent-warning: #fbbf24;
+  --accent-danger: #f87171;
+  --accent-info: #38bdf8;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  --nav-height: 56px;
+  --sidebar-width: 300px;
+}
+
+/* ============================================
+   Reset & Base Styles
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ============================================
+   Scrollbar Styles
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ============================================
+   Top Navigation Bar
+   ============================================ */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
+  backdrop-filter: blur(12px);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  user-select: none;
+}
+
+.nav-logo-icon {
+  font-size: 1.5rem;
+}
+
+.nav-logo-text {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+}
+
+.nav-btn.active {
+  background: var(--accent-primary);
+  color: #fff;
+  border-color: var(--accent-primary);
+}
+
+/* ============================================
+   Main Layout
+   ============================================ */
+.app-layout {
+  display: flex;
+  margin-top: var(--nav-height);
+  min-height: calc(100vh - var(--nav-height));
+}
+
+/* ============================================
+   Left Sidebar Panel
+   ============================================ */
+.sidebar-left {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Upload Area */
+.upload-zone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  margin-bottom: 16px;
+  background: var(--bg-input);
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+  border-color: var(--accent-primary);
+  background: rgba(79, 110, 247, 0.05);
+}
+
+.upload-zone-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.upload-zone-text {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.upload-zone-text strong {
+  color: var(--accent-primary);
+}
+
+.upload-zone input[type="file"] {
+  display: none;
+}
+
+/* File Info */
+.file-info {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.file-info.visible {
+  display: block;
+}
+
+.file-info-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-info-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Section: Generate Script */
+.generate-section {
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* API Key Configuration */
+.api-config {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.api-config-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.api-config-row:last-child {
+  margin-bottom: 0;
+}
+
+.api-config-row label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  min-width: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.api-config-row select,
+.api-config-row input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.api-config-row select:focus,
+.api-config-row input:focus {
+  border-color: var(--accent-primary);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--accent-primary);
+  color: #fff;
+  border-color: var(--accent-primary);
+}
+
+.btn-primary:hover {
+  background: #3d5ce0;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+}
+
+.btn-success {
+  background: var(--accent-success);
+  color: #000;
+}
+
+.btn-success:hover {
+  background: #2cc48a;
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Chapter List */
+.chapter-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chapter-item {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  cursor: grab;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.chapter-item:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-hover);
+}
+
+.chapter-item.dragging {
+  opacity: 0.5;
+  border-color: var(--accent-secondary);
+}
+
+.chapter-item.active {
+  border-color: var(--accent-primary);
+  background: rgba(79, 110, 247, 0.1);
+}
+
+.chapter-drag-handle {
+  color: var(--text-muted);
+  cursor: grab;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.chapter-number {
+  background: var(--accent-primary);
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.chapter-title {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chapter-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.chapter-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px;
+  transition: color var(--transition-fast);
+}
+
+.chapter-action-btn:hover {
+  color: var(--text-primary);
+}
+
+.chapter-action-btn.delete:hover {
+  color: var(--accent-danger);
+}
+
+/* ============================================
+   Center Content Area
+   ============================================ */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Editor Tabs */
+.editor-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 0 16px;
+}
+
+.editor-tab {
+  padding: 12px 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: var(--font-sans);
+}
+
+.editor-tab:hover {
+  color: var(--text-primary);
+}
+
+.editor-tab.active {
+  color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
+}
+
+/* Editor Area */
+.editor-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Script Editor */
+.script-editor {
+  width: 100%;
+  min-height: 400px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.8;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.script-editor:focus {
+  border-color: var(--accent-primary);
+}
+
+/* Script Preview */
+.script-preview {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  min-height: 400px;
+  display: none;
+}
+
+.script-preview.visible {
+  display: block;
+}
+
+.preview-section {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.preview-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.preview-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-speaker {
+  font-weight: 600;
+  color: var(--accent-secondary);
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.preview-text {
+  color: var(--text-primary);
+  line-height: 1.8;
+  font-size: 0.9rem;
+}
+
+/* ============================================
+   Right Sidebar Panel
+   ============================================ */
+.sidebar-right {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Audio Player */
+.audio-player {
+  padding: 16px;
+}
+
+.player-display {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.player-status {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.player-current-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  min-height: 40px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.player-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.player-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+}
+
+.player-btn.play-btn {
+  width: 52px;
+  height: 52px;
+  font-size: 1.4rem;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.player-btn.play-btn:hover {
+  background: #3d5ce0;
+}
+
+.player-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Progress Bar */
+.progress-container {
+  margin-bottom: 16px;
+}
+
+.progress-bar-wrapper {
+  background: var(--bg-input);
+  border-radius: var(--radius-full);
+  height: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: var(--radius-full);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+.progress-times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Speed Control */
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.speed-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-width: 40px;
+}
+
+.speed-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--bg-input);
+  border-radius: var(--radius-full);
+  outline: none;
+}
+
+.speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  background: var(--accent-primary);
+  cursor: pointer;
+}
+
+.speed-value {
+  font-size: 0.8rem;
+  color: var(--accent-primary);
+  font-weight: 600;
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Voice Selection */
+.voice-select-wrapper {
+  margin-bottom: 16px;
+}
+
+.voice-select {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  outline: none;
+  cursor: pointer;
+}
+
+.voice-select:focus {
+  border-color: var(--accent-primary);
+}
+
+/* Export Section */
+.export-section {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.export-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ============================================
+   Bottom Panel - Knowledge Graph
+   ============================================ */
+.bottom-panel {
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  height: 280px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.bottom-panel-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bottom-panel-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.knowledge-graph-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+#knowledgeGraph {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ============================================
+   Modal / Toast Notifications
+   ============================================ */
+.toast-container {
+  position: fixed;
+  top: calc(var(--nav-height) + 12px);
+  right: 16px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  animation: toastIn 0.3s ease;
+  max-width: 360px;
+}
+
+.toast.success { border-left: 3px solid var(--accent-success); }
+.toast.error { border-left: 3px solid var(--accent-danger); }
+.toast.info { border-left: 3px solid var(--accent-info); }
+.toast.warning { border-left: 3px solid var(--accent-warning); }
+
+.toast.hiding {
+  animation: toastOut 0.3s ease forwards;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(40px); }
+}
+
+/* ============================================
+   Loading Spinner
+   ============================================ */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: var(--radius-full);
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.empty-state-text {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 1024px) {
+  .sidebar-left,
+  .sidebar-right {
+    width: 260px;
+    min-width: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .sidebar-left,
+  .sidebar-right {
+    width: 100%;
+    min-width: 100%;
+    max-height: 300px;
+    border-right: none;
+    border-left: none;
+  }
+
+  .sidebar-left {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .sidebar-right {
+    border-top: 1px solid var(--border-color);
+  }
+
+  .main-content {
+    min-height: 400px;
+  }
+
+  .bottom-panel {
+    height: 220px;
+  }
+
+  .nav-logo-text {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --nav-height: 48px;
+  }
+
+  .nav-btn span {
+    display: none;
+  }
+
+  .editor-tabs {
+    padding: 0 8px;
+    overflow-x: auto;
+  }
+
+  .editor-tab {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+
+  .editor-area {
+    padding: 12px;
+  }
+
+  .player-controls {
+    gap: 8px;
+  }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.hidden { display: none !important; }
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.flex-1 { flex: 1; }
+.gap-8 { gap: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     Navigation Bar
+     ============================================ -->
+<nav class="navbar">
+  <a class="nav-logo" href="#">
+    <span class="nav-logo-icon">🎙️</span>
+    <span class="nav-logo-text">DocPodcast Studio</span>
+  </a>
+  <div class="nav-actions">
+    <button class="nav-btn" id="langToggle" onclick="toggleLanguage()" title="Switch Language">
+      <span>🌐</span><span id="langLabel">EN</span>
+    </button>
+    <button class="nav-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle Theme">
+      <span>🌙</span><span id="themeLabel">Dark</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ============================================
+     Main Application Layout
+     ============================================ -->
+<div class="app-layout">
+
+  <!-- Left Sidebar: Upload & Chapters -->
+  <aside class="sidebar-left">
+    <div class="panel-header">
+      <span>📄</span>
+      <span data-i18n="panel.upload">文档 & 章节</span>
+    </div>
+    <div class="panel-content">
+
+      <!-- Upload Zone -->
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <span class="upload-zone-icon">📤</span>
+        <div class="upload-zone-text" data-i18n="upload.hint">
+          <strong>点击上传</strong> 或拖拽文件到此处<br>
+          支持 TXT / Markdown / JSON
+        </div>
+        <input type="file" id="fileInput" accept=".txt,.md,.markdown,.json" onchange="handleFileUpload(event)">
+      </div>
+
+      <!-- File Info -->
+      <div class="file-info" id="fileInfo">
+        <div class="file-info-name" id="fileName"></div>
+        <div class="file-info-meta" id="fileMeta"></div>
+      </div>
+
+      <!-- Generate Script Section -->
+      <div class="generate-section">
+        <div class="section-title">
+          <span>🤖</span>
+          <span data-i18n="generate.title">播客脚本生成</span>
+        </div>
+
+        <!-- API Config -->
+        <div class="api-config">
+          <div class="api-config-row">
+            <label data-i18n="api.provider">引擎</label>
+            <select id="apiProvider" onchange="onProviderChange()">
+              <option value="template" data-i18n="api.template">内置模板</option>
+              <option value="glm">GLM-5.1</option>
+              <option value="openai">OpenAI</option>
+              <option value="claude">Claude</option>
+            </select>
+          </div>
+          <div class="api-config-row" id="apiKeyRow" style="display:none;">
+            <label>API Key</label>
+            <input type="password" id="apiKeyInput" placeholder="sk-..." data-i18n-placeholder="api.keyPlaceholder">
+          </div>
+          <div class="api-config-row" id="apiModelRow" style="display:none;">
+            <label data-i18n="api.model">模型</label>
+            <input type="text" id="apiModelInput" placeholder="glm-5.1" value="glm-5.1">
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="generateBtn" onclick="generateScript()" disabled>
+          <span>✨</span>
+          <span data-i18n="generate.btn">生成播客脚本</span>
+        </button>
+      </div>
+
+      <!-- Chapter List -->
+      <div class="mt-16">
+        <div class="section-title">
+          <span>📑</span>
+          <span data-i18n="chapters.title">章节列表</span>
+        </div>
+        <ul class="chapter-list" id="chapterList">
+          <!-- Chapters will be rendered here -->
+        </ul>
+        <div class="empty-state" id="chapterEmpty">
+          <span class="empty-state-icon">📭</span>
+          <div class="empty-state-text" data-i18n="chapters.empty">上传文档后自动生成章节</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Center: Script Editor / Preview -->
+  <main class="main-content">
+    <div class="editor-tabs">
+      <button class="editor-tab active" data-tab="editor" onclick="switchTab('editor')">
+        <span>📝</span>
+        <span data-i18n="tab.editor">脚本编辑器</span>
+      </button>
+      <button class="editor-tab" data-tab="preview" onclick="switchTab('preview')">
+        <span>👁️</span>
+        <span data-i18n="tab.preview">预览</span>
+      </button>
+    </div>
+    <div class="editor-area">
+      <textarea class="script-editor" id="scriptEditor" placeholder="播客脚本将在此处显示，你也可以直接编辑..." data-i18n-placeholder="editor.placeholder"></textarea>
+      <div class="script-preview" id="scriptPreview">
+        <div class="empty-state">
+          <span class="empty-state-icon">📖</span>
+          <div class="empty-state-text" data-i18n="preview.empty">生成脚本后可在此预览</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom: Knowledge Graph -->
+    <div class="bottom-panel">
+      <div class="bottom-panel-header">
+        <div class="bottom-panel-title">
+          <span>🕸️</span>
+          <span data-i18n="graph.title">知识图谱</span>
+        </div>
+        <button class="btn btn-sm btn-secondary" onclick="refreshKnowledgeGraph()">
+          <span>🔄</span>
+          <span data-i18n="graph.refresh">刷新</span>
+        </button>
+      </div>
+      <div class="knowledge-graph-container">
+        <canvas id="knowledgeGraph"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right Sidebar: Audio Player & Controls -->
+  <aside class="sidebar-right">
+    <div class="panel-header">
+      <span>🔊</span>
+      <span data-i18n="panel.player">音频播放器</span>
+    </div>
+
+    <!-- Audio Player -->
+    <div class="audio-player">
+      <div class="player-display">
+        <div class="player-status" id="playerStatus">⏸️</div>
+        <div class="player-current-text" id="playerCurrentText" data-i18n="player.ready">准备就绪，等待播放</div>
+      </div>
+
+      <div class="player-controls">
+        <button class="player-btn" id="prevBtn" onclick="playPrevSection()" disabled title="Previous">⏮️</button>
+        <button class="player-btn play-btn" id="playBtn" onclick="togglePlay()" disabled title="Play/Pause">▶️</button>
+        <button class="player-btn" id="nextBtn" onclick="playNextSection()" disabled title="Next">⏭️</button>
+        <button class="player-btn" id="stopBtn" onclick="stopPlayback()" disabled title="Stop">⏹️</button>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-bar-wrapper" id="progressBar" onclick="seekProgress(event)">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-times">
+          <span id="currentTime">0:00</span>
+          <span id="totalTime">0:00</span>
+        </div>
+      </div>
+
+      <div class="speed-control">
+        <span class="speed-label" data-i18n="player.speed">语速</span>
+        <input type="range" class="speed-slider" id="speedSlider" min="0.5" max="2" step="0.1" value="1" oninput="onSpeedChange(this.value)">
+        <span class="speed-value" id="speedValue">1.0x</span>
+      </div>
+
+      <div class="voice-select-wrapper">
+        <select class="voice-select" id="voiceSelect" onchange="onVoiceChange()">
+          <option value="" data-i18n="voice.loading">加载语音列表中...</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="export-section">
+      <div class="section-title">
+        <span>💾</span>
+        <span data-i18n="export.title">导出</span>
+      </div>
+      <div class="export-btn-group">
+        <button class="btn btn-secondary btn-block btn-sm" onclick="exportSRT()">
+          <span>📝</span>
+          <span data-i18n="export.srt">导出 SRT 字幕</span>
+        </button>
+        <button class="btn btn-secondary btn-block btn-sm" onclick="exportMarkdown()">
+          <span>📄</span>
+          <span data-i18n="export.md">导出 Markdown 脚本</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================
+     JavaScript Application Logic
+     ============================================ -->
+<script>
+// ============================================
+// Application State
+// ============================================
+const AppState = {
+  currentLang: 'zh',       // Current UI language: 'zh' or 'en'
+  currentTheme: 'dark',    // Current theme: 'dark' or 'light'
+  document: null,           // Parsed document content
+  documentTitle: '',        // Document title
+  fileName: '',             // Uploaded file name
+  fileSize: 0,              // Uploaded file size
+  chapters: [],             // Array of chapter objects: { id, title, content }
+  scriptSections: [],       // Array of script sections for TTS: { speaker, text }
+  currentSectionIndex: 0,   // Current playing section index
+  isPlaying: false,        // TTS playback state
+  isPaused: false,          // TTS pause state
+  speechRate: 1.0,         // Speech rate
+  selectedVoice: null,     // Selected SpeechSynthesisVoice
+  voices: [],              // Available voices
+  graphNodes: [],           // Knowledge graph nodes
+  graphEdges: [],           // Knowledge graph edges
+  graphAnimFrame: null,     // Animation frame ID for graph
+  playbackStartTime: 0,    // Playback start timestamp
+  playbackElapsed: 0,      // Total elapsed playback time
+  progressTimer: null,     // Timer for progress updates
+  totalEstimatedDuration: 0 // Estimated total duration in seconds
+};
+
+// ============================================
+// Internationalization (i18n) Strings
+// ============================================
+const I18N = {
+  zh: {
+    'panel.upload': '文档 & 章节',
+    'upload.hint': '<strong>点击上传</strong> 或拖拽文件到此处<br>支持 TXT / Markdown / JSON',
+    'generate.title': '播客脚本生成',
+    'api.provider': '引擎',
+    'api.template': '内置模板',
+    'api.keyPlaceholder': 'sk-...',
+    'api.model': '模型',
+    'generate.btn': '生成播客脚本',
+    'chapters.title': '章节列表',
+    'chapters.empty': '上传文档后自动生成章节',
+    'tab.editor': '脚本编辑器',
+    'tab.preview': '预览',
+    'editor.placeholder': '播客脚本将在此处显示，你也可以直接编辑...',
+    'preview.empty': '生成脚本后可在此预览',
+    'panel.player': '音频播放器',
+    'player.ready': '准备就绪，等待播放',
+    'player.speed': '语速',
+    'voice.loading': '加载语音列表中...',
+    'export.title': '导出',
+    'export.srt': '导出 SRT 字幕',
+    'export.md': '导出 Markdown 脚本',
+    'graph.title': '知识图谱',
+    'graph.refresh': '刷新',
+    'theme.dark': 'Dark',
+    'theme.light': 'Light',
+    'toast.upload.success': '文档上传成功',
+    'toast.upload.error': '文档上传失败',
+    'toast.parse.error': '文档解析失败',
+    'toast.generate.success': '脚本生成成功',
+    'toast.generate.error': '脚本生成失败',
+    'toast.generate.nocontent': '请先上传文档',
+    'toast.export.success': '导出成功',
+    'toast.export.nocontent': '没有可导出的内容',
+    'toast.tts.nocontent': '没有可播放的内容',
+    'toast.tts.unsupported': '浏览器不支持语音合成',
+    'chapter.untitled': '未命名章节',
+    'player.playing': '正在播放',
+    'player.paused': '已暂停',
+    'player.stopped': '已停止',
+    'player.finished': '播放完成',
+  },
+  en: {
+    'panel.upload': 'Document & Chapters',
+    'upload.hint': '<strong>Click to upload</strong> or drag files here<br>Supports TXT / Markdown / JSON',
+    'generate.title': 'Podcast Script Generator',
+    'api.provider': 'Engine',
+    'api.template': 'Built-in Template',
+    'api.keyPlaceholder': 'sk-...',
+    'api.model': 'Model',
+    'generate.btn': 'Generate Podcast Script',
+    'chapters.title': 'Chapter List',
+    'chapters.empty': 'Upload a document to generate chapters',
+    'tab.editor': 'Script Editor',
+    'tab.preview': 'Preview',
+    'editor.placeholder': 'Podcast script will appear here. You can also edit directly...',
+    'preview.empty': 'Preview will appear after generating script',
+    'panel.player': 'Audio Player',
+    'player.ready': 'Ready to play',
+    'player.speed': 'Speed',
+    'voice.loading': 'Loading voices...',
+    'export.title': 'Export',
+    'export.srt': 'Export SRT Subtitles',
+    'export.md': 'Export Markdown Script',
+    'graph.title': 'Knowledge Graph',
+    'graph.refresh': 'Refresh',
+    'theme.dark': 'Dark',
+    'theme.light': 'Light',
+    'toast.upload.success': 'Document uploaded successfully',
+    'toast.upload.error': 'Document upload failed',
+    'toast.parse.error': 'Document parsing failed',
+    'toast.generate.success': 'Script generated successfully',
+    'toast.generate.error': 'Script generation failed',
+    'toast.generate.nocontent': 'Please upload a document first',
+    'toast.export.success': 'Export successful',
+    'toast.export.nocontent': 'No content to export',
+    'toast.tts.nocontent': 'No content to play',
+    'toast.tts.unsupported': 'Browser does not support speech synthesis',
+    'chapter.untitled': 'Untitled Chapter',
+    'player.playing': 'Playing',
+    'player.paused': 'Paused',
+    'player.stopped': 'Stopped',
+    'player.finished': 'Playback finished',
+  }
+};
+
+// ============================================
+// Utility Functions
+// ============================================
+
+/** Get translated string by key */
+function t(key) {
+  return (I18N[AppState.currentLang] && I18N[AppState.currentLang][key]) || key;
+}
+
+/** Update all i18n text elements */
+function updateI18N() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[AppState.currentLang] && I18N[AppState.currentLang][key]) {
+      el.innerHTML = I18N[AppState.currentLang][key];
+    }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (I18N[AppState.currentLang] && I18N[AppState.currentLang][key]) {
+      el.placeholder = I18N[AppState.currentLang][key];
+    }
+  });
+}
+
+/** Show toast notification */
+function showToast(message, type = 'info', duration = 3000) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+
+  const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+  toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('hiding');
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+/** Format file size to human readable */
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+/** Format seconds to mm:ss */
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+/** Generate unique ID */
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+/** Escape HTML entities */
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// ============================================
+// Language Toggle
+// ============================================
+function toggleLanguage() {
+  AppState.currentLang = AppState.currentLang === 'zh' ? 'en' : 'zh';
+  document.getElementById('langLabel').textContent = AppState.currentLang === 'zh' ? 'EN' : '中文';
+  document.documentElement.lang = AppState.currentLang === 'zh' ? 'zh-CN' : 'en';
+  updateI18N();
+  // Re-render chapters if any
+  renderChapters();
+}
+
+// ============================================
+// Theme Toggle (Dark / Light)
+// ============================================
+function toggleTheme() {
+  AppState.currentTheme = AppState.currentTheme === 'dark' ? 'light' : 'dark';
+  const root = document.documentElement;
+
+  if (AppState.currentTheme === 'light') {
+    root.style.setProperty('--bg-primary', '#f5f7fa');
+    root.style.setProperty('--bg-secondary', '#ffffff');
+    root.style.setProperty('--bg-tertiary', '#eef0f5');
+    root.style.setProperty('--bg-card', '#f0f2f7');
+    root.style.setProperty('--bg-hover', '#e4e7ee');
+    root.style.setProperty('--bg-input', '#f8f9fc');
+    root.style.setProperty('--border-color', '#d8dce6');
+    root.style.setProperty('--text-primary', '#1a1d27');
+    root.style.setProperty('--text-secondary', '#5a6178');
+    root.style.setProperty('--text-muted', '#8a92a8');
+    document.getElementById('themeLabel').textContent = 'Light';
+    document.querySelector('#themeToggle span:first-child').textContent = '☀️';
+  } else {
+    root.style.setProperty('--bg-primary', '#0f1117');
+    root.style.setProperty('--bg-secondary', '#1a1d27');
+    root.style.setProperty('--bg-tertiary', '#242836');
+    root.style.setProperty('--bg-card', '#1e2230');
+    root.style.setProperty('--bg-hover', '#2a2f40');
+    root.style.setProperty('--bg-input', '#161923');
+    root.style.setProperty('--border-color', '#2e3348');
+    root.style.setProperty('--text-primary', '#e8eaf0');
+    root.style.setProperty('--text-secondary', '#9ca3b8');
+    root.style.setProperty('--text-muted', '#6b7394');
+    document.getElementById('themeLabel').textContent = 'Dark';
+    document.querySelector('#themeToggle span:first-child').textContent = '🌙';
+  }
+}
+
+// ============================================
+// File Upload & Drag/Drop
+// ============================================
+(function initDragDrop() {
+  const zone = document.getElementById('uploadZone');
+
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zone.classList.add('dragover');
+  });
+
+  zone.addEventListener('dragleave', () => {
+    zone.classList.remove('dragover');
+  });
+
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      processFile(files[0]);
+    }
+  });
+})();
+
+/** Handle file input change */
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (file) processFile(file);
+}
+
+/** Process uploaded file: read, parse, and generate chapters */
+function processFile(file) {
+  const validExts = ['.txt', '.md', '.markdown', '.json'];
+  const ext = '.' + file.name.split('.').pop().toLowerCase();
+
+  if (!validExts.includes(ext)) {
+    showToast(t('toast.upload.error') + ': Unsupported file format', 'error');
+    return;
+  }
+
+  AppState.fileName = file.name;
+  AppState.fileSize = file.size;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const content = e.target.result;
+    try {
+      parseDocument(content, ext);
+      showToast(t('toast.upload.success'), 'success');
+
+      // Show file info
+      const fileInfo = document.getElementById('fileInfo');
+      fileInfo.classList.add('visible');
+      document.getElementById('fileName').textContent = AppState.fileName;
+      document.getElementById('fileMeta').textContent =
+        `${formatFileSize(AppState.fileSize)} · ${AppState.chapters.length} chapters`;
+
+      // Enable generate button
+      document.getElementById('generateBtn').disabled = false;
+
+      // Render chapters
+      renderChapters();
+
+      // Update knowledge graph
+      buildKnowledgeGraph();
+      drawKnowledgeGraph();
+
+    } catch (err) {
+      showToast(t('toast.parse.error') + ': ' + err.message, 'error');
+    }
+  };
+
+  reader.onerror = function() {
+    showToast(t('toast.upload.error'), 'error');
+  };
+
+  reader.readAsText(file, 'UTF-8');
+}
+
+// ============================================
+// Document Parsing
+// ============================================
+
+/** Parse document content based on file extension */
+function parseDocument(content, ext) {
+  switch (ext) {
+    case '.txt':
+      parseTXT(content);
+      break;
+    case '.md':
+    case '.markdown':
+      parseMarkdown(content);
+      break;
+    case '.json':
+      parseJSON(content);
+      break;
+    default:
+      throw new Error('Unsupported format');
+  }
+}
+
+/** Parse plain text: split by double newlines or single newlines with heuristics */
+function parseTXT(content) {
+  AppState.document = content;
+  AppState.documentTitle = AppState.fileName.replace(/\.txt$/i, '');
+
+  // Split by double newlines first
+  let blocks = content.split(/\n\s*\n/).filter(b => b.trim().length > 0);
+
+  // If only one block, try splitting by single newlines
+  if (blocks.length <= 1) {
+    blocks = content.split(/\n/).filter(b => b.trim().length > 0);
+  }
+
+  AppState.chapters = blocks.map((block, i) => {
+    const lines = block.trim().split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const title = lines.length > 0
+      ? (lines[0].length > 60 ? lines[0].substring(0, 60) + '...' : lines[0])
+      : t('chapter.untitled');
+    const chapterContent = lines.join('\n');
+    return { id: uid(), title, content: chapterContent };
+  });
+
+  if (AppState.chapters.length === 0) {
+    throw new Error('No content found in document');
+  }
+}
+
+/** Parse Markdown: extract headers and content sections */
+function parseMarkdown(content) {
+  AppState.document = content;
+
+  // Extract title from first H1
+  const h1Match = content.match(/^#\s+(.+)$/m);
+  AppState.documentTitle = h1Match ? h1Match[1].trim() : AppState.fileName.replace(/\.md$/i, '');
+
+  // Split by headers (## or ###)
+  const sections = content.split(/^(?:#{1,3})\s+.+$/gm).filter(s => s.trim().length > 0);
+
+  // Also extract headers
+  const headerRegex = /^(#{1,3})\s+(.+)$/gm;
+  const headers = [];
+  let match;
+  while ((match = headerRegex.exec(content)) !== null) {
+    headers.push(match[2].trim());
+  }
+
+  if (sections.length === 0) {
+    throw new Error('No content found in Markdown');
+  }
+
+  AppState.chapters = sections.map((section, i) => {
+    const cleanContent = section.trim().replace(/^#+\s+.+$/gm, '').trim();
+    const lines = cleanContent.split('\n').filter(l => l.trim().length > 0);
+    const title = headers[i] || (lines.length > 0
+      ? (lines[0].length > 60 ? lines[0].substring(0, 60) + '...' : lines[0])
+      : t('chapter.untitled') + ' ' + (i + 1));
+    return { id: uid(), title, content: cleanContent };
+  });
+}
+
+/** Parse JSON: support array of objects or single object with content/sections */
+function parseJSON(content) {
+  AppState.document = content;
+  const data = JSON.parse(content);
+
+  if (Array.isArray(data)) {
+    // Array of objects: each with title and content (or text/body)
+    AppState.chapters = data.map((item, i) => ({
+      id: uid(),
+      title: item.title || item.heading || t('chapter.untitled') + ' ' + (i + 1),
+      content: item.content || item.text || item.body || JSON.stringify(item, null, 2)
+    }));
+    AppState.documentTitle = AppState.fileName.replace(/\.json$/i, '');
+  } else if (typeof data === 'object') {
+    AppState.documentTitle = data.title || data.name || AppState.fileName.replace(/\.json$/i, '');
+
+    if (data.sections && Array.isArray(data.sections)) {
+      AppState.chapters = data.sections.map((s, i) => ({
+        id: uid(),
+        title: s.title || s.heading || t('chapter.untitled') + ' ' + (i + 1),
+        content: s.content || s.text || s.body || ''
+      }));
+    } else if (data.content || data.text) {
+      // Single content block - split by paragraphs
+      const text = data.content || data.text;
+      const blocks = text.split(/\n\s*\n/).filter(b => b.trim().length > 0);
+      AppState.chapters = blocks.map((block, i) => ({
+        id: uid(),
+        title: t('chapter.untitled') + ' ' + (i + 1),
+        content: block.trim()
+      }));
+    } else {
+      // Flatten unknown JSON structure
+      const text = JSON.stringify(data, null, 2);
+      const blocks = text.split(/\n\s*\n/).filter(b => b.trim().length > 0);
+      AppState.chapters = blocks.map((block, i) => ({
+        id: uid(),
+        title: t('chapter.untitled') + ' ' + (i + 1),
+        content: block.trim()
+      }));
+    }
+  } else {
+    throw new Error('Invalid JSON structure');
+  }
+
+  if (AppState.chapters.length === 0) {
+    throw new Error('No content found in JSON');
+  }
+}
+
+// ============================================
+// Chapter Management & Rendering
+// ============================================
+
+/** Render chapter list with drag-and-drop support */
+function renderChapters() {
+  const list = document.getElementById('chapterList');
+  const empty = document.getElementById('chapterEmpty');
+
+  if (AppState.chapters.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  list.innerHTML = AppState.chapters.map((ch, i) => `
+    <li class="chapter-item" data-id="${ch.id}" draggable="true"
+        ondragstart="onChapterDragStart(event)" ondragover="onChapterDragOver(event)"
+        ondrop="onChapterDrop(event)" ondragend="onChapterDragEnd(event)">
+      <span class="chapter-drag-handle">⠿</span>
+      <span class="chapter-number">${i + 1}</span>
+      <span class="chapter-title" title="${escapeHtml(ch.title)}">${escapeHtml(ch.title)}</span>
+      <div class="chapter-actions">
+        <button class="chapter-action-btn" onclick="editChapter('${ch.id}')" title="Edit">✏️</button>
+        <button class="chapter-action-btn delete" onclick="deleteChapter('${ch.id}')" title="Delete">🗑️</button>
+      </div>
+    </li>
+  `).join('');
+}
+
+// Drag-and-drop state
+let draggedChapterId = null;
+
+function onChapterDragStart(e) {
+  draggedChapterId = e.currentTarget.dataset.id;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onChapterDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function onChapterDrop(e) {
+  e.preventDefault();
+  const targetId = e.currentTarget.dataset.id;
+  if (draggedChapterId && targetId && draggedChapterId !== targetId) {
+    const fromIdx = AppState.chapters.findIndex(c => c.id === draggedChapterId);
+    const toIdx = AppState.chapters.findIndex(c => c.id === targetId);
+    if (fromIdx !== -1 && toIdx !== -1) {
+      const [moved] = AppState.chapters.splice(fromIdx, 1);
+      AppState.chapters.splice(toIdx, 0, moved);
+      renderChapters();
+    }
+  }
+}
+
+function onChapterDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  draggedChapterId = null;
+}
+
+/** Edit chapter title inline */
+function editChapter(id) {
+  const ch = AppState.chapters.find(c => c.id === id);
+  if (!ch) return;
+
+  const newTitle = prompt(AppState.currentLang === 'zh' ? '编辑章节标题:' : 'Edit chapter title:', ch.title);
+  if (newTitle !== null && newTitle.trim()) {
+    ch.title = newTitle.trim();
+    renderChapters();
+  }
+}
+
+/** Delete a chapter */
+function deleteChapter(id) {
+  AppState.chapters = AppState.chapters.filter(c => c.id !== id);
+  renderChapters();
+
+  // Update file info
+  if (AppState.chapters.length > 0) {
+    document.getElementById('fileMeta').textContent =
+      `${formatFileSize(AppState.fileSize)} · ${AppState.chapters.length} chapters`;
+  } else {
+    document.getElementById('fileInfo').classList.remove('visible');
+    document.getElementById('generateBtn').disabled = true;
+  }
+}
+
+// ============================================
+// API Provider Change Handler
+// ============================================
+function onProviderChange() {
+  const provider = document.getElementById('apiProvider').value;
+  const keyRow = document.getElementById('apiKeyRow');
+  const modelRow = document.getElementById('apiModelRow');
+  const modelInput = document.getElementById('apiModelInput');
+
+  if (provider === 'template') {
+    keyRow.style.display = 'none';
+    modelRow.style.display = 'none';
+  } else {
+    keyRow.style.display = 'flex';
+    modelRow.style.display = 'flex';
+
+    // Set default model based on provider
+    if (provider === 'glm') {
+      modelInput.value = 'glm-5.1';
+    } else if (provider === 'openai') {
+      modelInput.value = 'gpt-4o';
+    } else if (provider === 'claude') {
+      modelInput.value = 'claude-sonnet-4-20250514';
+    }
+  }
+}
+
+// ============================================
+// Podcast Script Generation
+// ============================================
+
+/** Main entry: generate podcast script */
+async function generateScript() {
+  if (AppState.chapters.length === 0) {
+    showToast(t('toast.generate.nocontent'), 'warning');
+    return;
+  }
+
+  const provider = document.getElementById('apiProvider').value;
+  const btn = document.getElementById('generateBtn');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span><span>生成中...</span>';
+
+  try {
+    let script = '';
+
+    if (provider === 'template') {
+      script = generateScriptWithTemplate();
+    } else {
+      script = await generateScriptWithAPI(provider);
+    }
+
+    // Set editor content
+    document.getElementById('scriptEditor').value = script;
+
+    // Parse script sections for TTS
+    parseScriptSections(script);
+
+    // Update preview
+    renderPreview();
+
+    // Enable player buttons
+    document.getElementById('playBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = false;
+    document.getElementById('prevBtn').disabled = false;
+    document.getElementById('nextBtn').disabled = false;
+
+    // Estimate duration
+    estimateTotalDuration();
+
+    showToast(t('toast.generate.success'), 'success');
+
+  } catch (err) {
+    showToast(t('toast.generate.error') + ': ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<span>✨</span><span>${t('generate.btn')}</span>`;
+  }
+}
+
+/** Built-in template engine: generate podcast script without API */
+function generateScriptWithTemplate() {
+  const lang = AppState.currentLang;
+  const title = AppState.documentTitle;
+  const chapters = AppState.chapters;
+
+  let script = '';
+
+  if (lang === 'zh') {
+    script += `# ${title} - AI播客\n\n`;
+    script += `## 开场\n`;
+    script += `【主持人】: 大家好，欢迎收听本期播客节目。今天我们要聊一个非常有趣的话题——${title}。让我们一起来探索这个主题的精彩内容。\n\n`;
+
+    chapters.forEach((ch, i) => {
+      script += `## 第${i + 1}章: ${ch.title}\n`;
+      script += `【主持人】: 接下来我们进入第${i + 1}个部分，主题是"${ch.title}"。\n\n`;
+      script += `【主持人】: ${ch.content.substring(0, 200)}${ch.content.length > 200 ? '...' : ''}\n\n`;
+
+      // Add some discussion flavor
+      if (ch.content.length > 100) {
+        script += `【主持人】: 这个部分非常有意思。${generateTemplateComment(ch.content, 'zh')}\n\n`;
+      }
+    });
+
+    script += `## 结尾\n`;
+    script += `【主持人】: 好了，以上就是关于"${title}"的全部内容。希望今天的分享对大家有所帮助。感谢收听，我们下期再见！\n`;
+  } else {
+    script += `# ${title} - AI Podcast\n\n`;
+    script += `## Intro\n`;
+    script += `[Host]: Hello everyone, welcome to today's podcast episode. Today we're going to explore a fascinating topic — ${title}. Let's dive into the amazing content together.\n\n`;
+
+    chapters.forEach((ch, i) => {
+      script += `## Chapter ${i + 1}: ${ch.title}\n`;
+      script += `[Host]: Now let's move on to section ${i + 1}, which is about "${ch.title}".\n\n`;
+      script += `[Host]: ${ch.content.substring(0, 200)}${ch.content.length > 200 ? '...' : ''}\n\n`;
+
+      if (ch.content.length > 100) {
+        script += `[Host]: This part is really interesting. ${generateTemplateComment(ch.content, 'en')}\n\n`;
+      }
+    });
+
+    script += `## Outro\n`;
+    script += `[Host]: That wraps up our discussion on "${title}". I hope you found today's episode helpful. Thanks for listening, and see you next time!\n`;
+  }
+
+  return script;
+}
+
+/** Generate a contextual comment based on content analysis */
+function generateTemplateComment(content, lang) {
+  const len = content.length;
+  const hasNumbers = /\d+/.test(content);
+  const hasQuestion = /[?？]/.test(content);
+
+  if (lang === 'zh') {
+    if (hasQuestion) {
+      return '这里提出了一个值得思考的问题。我们可以从多个角度来理解这个观点，每个角度都有其独特的价值。';
+    }
+    if (hasNumbers) {
+      return '数据说明了一切。这些数字背后反映的趋势非常值得关注，它们揭示了事物发展的深层规律。';
+    }
+    if (len > 300) {
+      return '内容非常丰富，涉及了很多关键要点。让我们提炼一下核心思想，这样更容易理解和记忆。';
+    }
+    return '这个观点很有启发性。它提醒我们关注事物之间的联系，从整体上把握问题的本质。';
+  } else {
+    if (hasQuestion) {
+      return 'This raises a thought-provoking question. We can approach this from multiple angles, each offering unique insights.';
+    }
+    if (hasNumbers) {
+      return 'The numbers speak for themselves. The trends behind these figures are worth paying attention to, revealing deeper patterns.';
+    }
+    if (len > 300) {
+      return 'There\'s a lot of rich content here covering many key points. Let\'s distill the core ideas for easier understanding.';
+    }
+    return 'This is quite insightful. It reminds us to focus on the connections between things and grasp the essence of the issue holistically.';
+  }
+}
+
+/** Generate script using external AI API */
+async function generateScriptWithAPI(provider) {
+  const apiKey = document.getElementById('apiKeyInput').value.trim();
+  const model = document.getElementById('apiModelInput').value.trim();
+
+  if (!apiKey) {
+    throw new Error('API Key is required');
+  }
+
+  // Build the prompt
+  const lang = AppState.currentLang;
+  const docContent = AppState.chapters.map((ch, i) =>
+    `Chapter ${i + 1}: ${ch.title}\n${ch.content}`
+  ).join('\n\n');
+
+  const prompt = lang === 'zh'
+    ? `你是一个专业的播客节目主持人。请根据以下文档内容，生成一段生动的播客脚本。要求：
+1. 使用【主持人】作为说话人标记
+2. 包含开场白、各章节的讨论和结尾
+3. 语言口语化、生动有趣
+4. 每个章节都要有讨论和解读，不要只是复述原文
+5. 适当加入过渡语和互动元素
+
+文档标题：${AppState.documentTitle}
+文档内容：
+${docContent}`
+    : `You are a professional podcast host. Generate an engaging podcast script based on the following document content. Requirements:
+1. Use [Host] as the speaker marker
+2. Include intro, discussion for each chapter, and outro
+3. Use conversational, engaging language
+4. Discuss and interpret each chapter, don't just repeat the content
+5. Add transitions and interactive elements
+
+Document title: ${AppState.documentTitle}
+Document content:
+${docContent}`;
+
+  let apiUrl, headers, body;
+
+  if (provider === 'glm') {
+    apiUrl = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+    headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` };
+    body = { model, messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 4096 };
+  } else if (provider === 'openai') {
+    apiUrl = 'https://api.openai.com/v1/chat/completions';
+    headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` };
+    body = { model, messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 4096 };
+  } else if (provider === 'claude') {
+    apiUrl = 'https://api.anthropic.com/v1/messages';
+    headers = {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    };
+    body = {
+      model,
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: prompt }]
+    };
+  }
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error?.message || `API request failed (${response.status})`);
+  }
+
+  const data = await response.json();
+
+  if (provider === 'claude') {
+    return data.content[0].text;
+  }
+  return data.choices[0].message.content;
+}
+
+/** Parse script text into sections for TTS playback */
+function parseScriptSections(script) {
+  AppState.scriptSections = [];
+  const lines = script.split('\n');
+
+  // Pattern: 【Speaker】 or [Speaker] followed by text
+  const speakerPattern = /^【(.+?)】\s*(.*)$|^\[(.+?)\]\s*(.*)$/;
+
+  let currentSpeaker = 'Host';
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    const match = trimmed.match(speakerPattern);
+    if (match) {
+      currentSpeaker = match[1] || match[3];
+      const text = (match[2] || match[4] || '').trim();
+      if (text) {
+        AppState.scriptSections.push({ speaker: currentSpeaker, text });
+      }
+    } else if (trimmed.length > 0) {
+      // Continuation of previous speaker's text
+      if (AppState.scriptSections.length > 0) {
+        AppState.scriptSections[AppState.scriptSections.length - 1].text += ' ' + trimmed;
+      } else {
+        AppState.scriptSections.push({ speaker: currentSpeaker, text: trimmed });
+      }
+    }
+  }
+
+  AppState.currentSectionIndex = 0;
+}
+
+// ============================================
+// Editor Tabs
+// ============================================
+function switchTab(tab) {
+  document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.editor-tab[data-tab="${tab}"]`).classList.add('active');
+
+  const editor = document.getElementById('scriptEditor');
+  const preview = document.getElementById('scriptPreview');
+
+  if (tab === 'editor') {
+    editor.style.display = 'block';
+    preview.classList.remove('visible');
+  } else {
+    editor.style.display = 'none';
+    preview.classList.add('visible');
+    renderPreview();
+  }
+}
+
+/** Render script preview from editor content */
+function renderPreview() {
+  const script = document.getElementById('scriptEditor').value;
+  const previewEl = document.getElementById('scriptPreview');
+
+  if (!script.trim()) {
+    previewEl.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-state-icon">📖</span>
+        <div class="empty-state-text">${t('preview.empty')}</div>
+      </div>`;
+    return;
+  }
+
+  const lines = script.split('\n');
+  let html = '';
+  let currentSection = '';
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    if (trimmed.startsWith('# ')) {
+      if (currentSection) {
+        html += currentSection;
+        currentSection = '';
+      }
+      html += `<div class="preview-section">
+        <div class="preview-section-title">🎙️ ${escapeHtml(trimmed.substring(2))}</div>`;
+    } else if (trimmed.startsWith('## ')) {
+      if (currentSection) {
+        html += currentSection;
+        currentSection = '';
+      }
+      html += `<div class="preview-section">
+        <div class="preview-section-title">📌 ${escapeHtml(trimmed.substring(3))}</div>`;
+    } else {
+      const speakerMatch = trimmed.match(/^【(.+?)】\s*(.*)$|^\[(.+?)\]\s*(.*)$/);
+      if (speakerMatch) {
+        const speaker = speakerMatch[1] || speakerMatch[3];
+        const text = speakerMatch[2] || speakerMatch[4] || '';
+        html += `<div class="preview-speaker">🎤 ${escapeHtml(speaker)}</div>
+                 <div class="preview-text">${escapeHtml(text)}</div>`;
+      } else {
+        html += `<div class="preview-text">${escapeHtml(trimmed)}</div>`;
+      }
+    }
+  }
+
+  if (currentSection) html += currentSection;
+  html += '</div>'; // Close last section
+
+  previewEl.innerHTML = html;
+}
+
+// ============================================
+// Web Speech API - TTS Engine
+// ============================================
+
+/** Initialize voices list */
+function initVoices() {
+  if (!('speechSynthesis' in window)) {
+    document.getElementById('voiceSelect').innerHTML =
+      '<option>' + t('toast.tts.unsupported') + '</option>';
+    return;
+  }
+
+  const loadVoices = () => {
+    AppState.voices = speechSynthesis.getVoices();
+    const select = document.getElementById('voiceSelect');
+
+    if (AppState.voices.length === 0) return;
+
+    select.innerHTML = '';
+
+    // Group by language
+    const langGroups = {};
+    AppState.voices.forEach((voice, i) => {
+      const lang = voice.lang.split('-')[0];
+      if (!langGroups[lang]) langGroups[lang] = [];
+      langGroups[lang].push({ voice, index: i });
+    });
+
+    // Priority: zh, en, ja, then others
+    const priority = ['zh', 'en', 'ja'];
+    const sortedLangs = Object.keys(langGroups).sort((a, b) => {
+      const ai = priority.indexOf(a);
+      const bi = priority.indexOf(b);
+      if (ai !== -1 && bi !== -1) return ai - bi;
+      if (ai !== -1) return -1;
+      if (bi !== -1) return 1;
+      return a.localeCompare(b);
+    });
+
+    sortedLangs.forEach(lang => {
+      const group = document.createElement('optgroup');
+      group.label = lang.toUpperCase();
+
+      langGroups[lang].forEach(({ voice, index }) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        if (voice.default) option.selected = true;
+        group.appendChild(option);
+      });
+
+      select.appendChild(group);
+    });
+
+    // Auto-select first voice
+    if (AppState.voices.length > 0 && !AppState.selectedVoice) {
+      AppState.selectedVoice = AppState.voices[0];
+    }
+  };
+
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+/** Handle voice selection change */
+function onVoiceChange() {
+  const select = document.getElementById('voiceSelect');
+  const idx = parseInt(select.value);
+  if (AppState.voices[idx]) {
+    AppState.selectedVoice = AppState.voices[idx];
+  }
+}
+
+/** Handle speed slider change */
+function onSpeedChange(value) {
+  AppState.speechRate = parseFloat(value);
+  document.getElementById('speedValue').textContent = AppState.speechRate.toFixed(1) + 'x';
+}
+
+/** Toggle play/pause */
+function togglePlay() {
+  if (!('speechSynthesis' in window)) {
+    showToast(t('toast.tts.unsupported'), 'error');
+    return;
+  }
+
+  // If no sections, parse from editor
+  if (AppState.scriptSections.length === 0) {
+    const script = document.getElementById('scriptEditor').value;
+    if (!script.trim()) {
+      showToast(t('toast.tts.nocontent'), 'warning');
+      return;
+    }
+    parseScriptSections(script);
+    estimateTotalDuration();
+  }
+
+  if (AppState.isPlaying && !AppState.isPaused) {
+    // Pause
+    speechSynthesis.pause();
+    AppState.isPaused = true;
+    document.getElementById('playBtn').innerHTML = '▶️';
+    document.getElementById('playerStatus').textContent = '⏸️';
+    document.getElementById('playerCurrentText').textContent = t('player.paused');
+    clearInterval(AppState.progressTimer);
+  } else if (AppState.isPaused) {
+    // Resume
+    speechSynthesis.resume();
+    AppState.isPaused = false;
+    document.getElementById('playBtn').innerHTML = '⏸️';
+    document.getElementById('playerStatus').textContent = '🔊';
+    document.getElementById('playerCurrentText').textContent = t('player.playing');
+    startProgressTimer();
+  } else {
+    // Start playing
+    startPlayback();
+  }
+}
+
+/** Start TTS playback from current section */
+function startPlayback() {
+  speechSynthesis.cancel();
+
+  AppState.isPlaying = true;
+  AppState.isPaused = false;
+  AppState.playbackStartTime = Date.now();
+  AppState.playbackElapsed = 0;
+
+  document.getElementById('playBtn').innerHTML = '⏸️';
+  document.getElementById('playerStatus').textContent = '🔊';
+
+  playCurrentSection();
+  startProgressTimer();
+}
+
+/** Play current section */
+function playCurrentSection() {
+  if (AppState.currentSectionIndex >= AppState.scriptSections.length) {
+    // Finished all sections
+    stopPlayback();
+    showToast(t('player.finished'), 'success');
+    return;
+  }
+
+  const section = AppState.scriptSections[AppState.currentSectionIndex];
+  const utterance = new SpeechSynthesisUtterance(section.text);
+
+  // Set voice
+  if (AppState.selectedVoice) {
+    utterance.voice = AppState.selectedVoice;
+  }
+
+  utterance.rate = AppState.speechRate;
+  utterance.pitch = 1;
+
+  // Update display
+  document.getElementById('playerCurrentText').textContent =
+    `[${section.speaker}] ${section.text.substring(0, 80)}${section.text.length > 80 ? '...' : ''}`;
+
+  utterance.onend = () => {
+    AppState.currentSectionIndex++;
+    playCurrentSection();
+  };
+
+  utterance.onerror = (e) => {
+    if (e.error !== 'canceled') {
+      console.error('TTS Error:', e.error);
+      AppState.currentSectionIndex++;
+      playCurrentSection();
+    }
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+/** Play previous section */
+function playPrevSection() {
+  if (AppState.scriptSections.length === 0) return;
+  if (AppState.currentSectionIndex > 0) {
+    speechSynthesis.cancel();
+    AppState.currentSectionIndex--;
+    if (AppState.isPlaying) {
+      playCurrentSection();
+    } else {
+      startPlayback();
+    }
+  }
+}
+
+/** Play next section */
+function playNextSection() {
+  if (AppState.scriptSections.length === 0) return;
+  if (AppState.currentSectionIndex < AppState.scriptSections.length - 1) {
+    speechSynthesis.cancel();
+    AppState.currentSectionIndex++;
+    if (AppState.isPlaying) {
+      playCurrentSection();
+    } else {
+      startPlayback();
+    }
+  }
+}
+
+/** Stop playback */
+function stopPlayback() {
+  speechSynthesis.cancel();
+
+  AppState.isPlaying = false;
+  AppState.isPaused = false;
+  AppState.currentSectionIndex = 0;
+  AppState.playbackElapsed = 0;
+
+  clearInterval(AppState.progressTimer);
+
+  document.getElementById('playBtn').innerHTML = '▶️';
+  document.getElementById('playerStatus').textContent = '⏹️';
+  document.getElementById('playerCurrentText').textContent = t('player.stopped');
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('currentTime').textContent = '0:00';
+}
+
+/** Estimate total duration based on text length and speech rate */
+function estimateTotalDuration() {
+  const totalChars = AppState.scriptSections.reduce((sum, s) => sum + s.text.length, 0);
+  // Average speech rate: ~150 words/min for English, ~250 chars/min for Chinese
+  const isChinese = /[\u4e00-\u9fff]/.test(AppState.scriptSections[0]?.text || '');
+  const charsPerMinute = isChinese ? 250 : 150;
+  AppState.totalEstimatedDuration = (totalChars / charsPerMinute) * 60; // seconds
+  document.getElementById('totalTime').textContent = formatTime(AppState.totalEstimatedDuration);
+}
+
+/** Start progress timer */
+function startProgressTimer() {
+  clearInterval(AppState.progressTimer);
+  AppState.progressTimer = setInterval(() => {
+    if (!AppState.isPlaying || AppState.isPaused) return;
+
+    AppState.playbackElapsed = (Date.now() - AppState.playbackStartTime) / 1000;
+    const progress = AppState.totalEstimatedDuration > 0
+      ? Math.min((AppState.playbackElapsed / AppState.totalEstimatedDuration) * 100, 100)
+      : 0;
+
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('currentTime').textContent = formatTime(AppState.playbackElapsed);
+  }, 200);
+}
+
+/** Seek progress bar (approximate - restarts from estimated position) */
+function seekProgress(event) {
+  if (AppState.scriptSections.length === 0) return;
+
+  const bar = document.getElementById('progressBar');
+  const rect = bar.getBoundingClientRect();
+  const ratio = (event.clientX - rect.left) / rect.width;
+  const targetTime = ratio * AppState.totalEstimatedDuration;
+
+  // Find approximate section index
+  let elapsed = 0;
+  const isChinese = /[\u4e00-\u9fff]/.test(AppState.scriptSections[0]?.text || '');
+  const charsPerSec = (isChinese ? 250 : 150) / 60 * AppState.speechRate;
+
+  for (let i = 0; i < AppState.scriptSections.length; i++) {
+    const sectionDuration = AppState.scriptSections[i].text.length / charsPerSec;
+    if (elapsed + sectionDuration >= targetTime) {
+      AppState.currentSectionIndex = i;
+      break;
+    }
+    elapsed += sectionDuration;
+  }
+
+  if (AppState.isPlaying) {
+    speechSynthesis.cancel();
+    AppState.playbackStartTime = Date.now() - targetTime * 1000;
+    playCurrentSection();
+  }
+}
+
+// ============================================
+// Export Functions
+// ============================================
+
+/** Export script as SRT subtitle file */
+function exportSRT() {
+  const script = document.getElementById('scriptEditor').value;
+  if (!script.trim()) {
+    showToast(t('toast.export.nocontent'), 'warning');
+    return;
+  }
+
+  // Parse sections if not already parsed
+  if (AppState.scriptSections.length === 0) {
+    parseScriptSections(script);
+  }
+
+  const isChinese = /[\u4e00-\u9fff]/.test(AppState.scriptSections[0]?.text || '');
+  const charsPerSec = (isChinese ? 250 : 150) / 60 * AppState.speechRate;
+
+  let srt = '';
+  let startTime = 0;
+
+  AppState.scriptSections.forEach((section, i) => {
+    const duration = section.text.length / charsPerSec;
+    const endTime = startTime + duration;
+
+    const startH = Math.floor(startTime / 3600);
+    const startM = Math.floor((startTime % 3600) / 60);
+    const startS = Math.floor(startTime % 60);
+    const startMs = Math.floor((startTime % 1) * 1000);
+
+    const endH = Math.floor(endTime / 3600);
+    const endM = Math.floor((endTime % 3600) / 60);
+    const endS = Math.floor(endTime % 60);
+    const endMs = Math.floor((endTime % 1) * 1000);
+
+    const fmtTime = (h, m, s, ms) =>
+      `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')},${ms.toString().padStart(3,'0')}`;
+
+    srt += `${i + 1}\n`;
+    srt += `${fmtTime(startH, startM, startS, startMs)} --> ${fmtTime(endH, endM, endS, endMs)}\n`;
+    srt += `[${section.speaker}] ${section.text}\n\n`;
+
+    startTime = endTime;
+  });
+
+  downloadFile(`${AppState.documentTitle || 'podcast'}.srt`, srt, 'text/srt');
+  showToast(t('toast.export.success'), 'success');
+}
+
+/** Export script as Markdown file */
+function exportMarkdown() {
+  const script = document.getElementById('scriptEditor').value;
+  if (!script.trim()) {
+    showToast(t('toast.export.nocontent'), 'warning');
+    return;
+  }
+
+  downloadFile(`${AppState.documentTitle || 'podcast'}.md`, script, 'text/markdown');
+  showToast(t('toast.export.success'), 'success');
+}
+
+/** Trigger file download */
+function downloadFile(filename, content, mimeType) {
+  const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============================================
+// Knowledge Graph - Canvas Visualization
+// ============================================
+
+/** Build knowledge graph data from document content */
+function buildKnowledgeGraph() {
+  AppState.graphNodes = [];
+  AppState.graphEdges = [];
+
+  if (AppState.chapters.length === 0) return;
+
+  // Central node: document title
+  AppState.graphNodes.push({
+    id: 'center',
+    label: AppState.documentTitle || 'Document',
+    x: 0, y: 0,
+    radius: 28,
+    color: '#4f6ef7',
+    type: 'center'
+  });
+
+  // Chapter nodes
+  AppState.chapters.forEach((ch, i) => {
+    const angle = (2 * Math.PI * i) / AppState.chapters.length - Math.PI / 2;
+    const dist = 120 + Math.random() * 40;
+    AppState.graphNodes.push({
+      id: ch.id,
+      label: ch.title.length > 20 ? ch.title.substring(0, 20) + '...' : ch.title,
+      x: Math.cos(angle) * dist,
+      y: Math.sin(angle) * dist,
+      radius: 16,
+      color: '#7c5cfc',
+      type: 'chapter'
+    });
+
+    // Edge from center to chapter
+    AppState.graphEdges.push({
+      from: 'center',
+      to: ch.id,
+      color: 'rgba(79, 110, 247, 0.3)'
+    });
+  });
+
+  // Extract keywords from content and create sub-nodes
+  const keywordMap = {};
+  AppState.chapters.forEach(ch => {
+    const words = extractKeywords(ch.content);
+    words.forEach(word => {
+      if (!keywordMap[word]) keywordMap[word] = [];
+      keywordMap[word].push(ch.id);
+    });
+  });
+
+  // Add keyword nodes (top keywords that appear in multiple chapters)
+  const sharedKeywords = Object.entries(keywordMap)
+    .filter(([word, chapters]) => chapters.length >= 2)
+    .slice(0, 12);
+
+  sharedKeywords.forEach(([word, chapters], i) => {
+    const angle = (2 * Math.PI * i) / sharedKeywords.length;
+    const dist = 200 + Math.random() * 30;
+    const nodeId = 'kw_' + word;
+
+    AppState.graphNodes.push({
+      id: nodeId,
+      label: word,
+      x: Math.cos(angle) * dist,
+      y: Math.sin(angle) * dist,
+      radius: 10,
+      color: '#34d399',
+      type: 'keyword'
+    });
+
+    // Connect to relevant chapters
+    chapters.forEach(chId => {
+      AppState.graphEdges.push({
+        from: chId,
+        to: nodeId,
+        color: 'rgba(52, 211, 153, 0.2)'
+      });
+    });
+  });
+}
+
+/** Extract simple keywords from text content */
+function extractKeywords(text) {
+  // Simple keyword extraction: find meaningful words
+  const words = new Set();
+
+  // For Chinese: extract 2-4 character sequences that appear frequently
+  const chinesePattern = /[\u4e00-\u9fff]{2,4}/g;
+  const chineseMatches = text.match(chinesePattern) || [];
+  const chineseFreq = {};
+  chineseMatches.forEach(w => {
+    chineseFreq[w] = (chineseFreq[w] || 0) + 1;
+  });
+  Object.entries(chineseFreq)
+    .filter(([w, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .forEach(([w]) => words.add(w));
+
+  // For English: extract meaningful words (length >= 4)
+  const englishPattern = /\b[a-zA-Z]{4,}\b/g;
+  const englishMatches = text.match(englishPattern) || [];
+  const stopWords = new Set(['that', 'this', 'with', 'from', 'have', 'been', 'they', 'their',
+    'will', 'would', 'could', 'should', 'about', 'which', 'there', 'where', 'what', 'when',
+    'some', 'more', 'other', 'into', 'also', 'than', 'then', 'each', 'very', 'just']);
+  const englishFreq = {};
+  englishMatches.forEach(w => {
+    const lower = w.toLowerCase();
+    if (!stopWords.has(lower)) {
+      englishFreq[lower] = (englishFreq[lower] || 0) + 1;
+    }
+  });
+  Object.entries(englishFreq)
+    .filter(([w, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .forEach(([w]) => words.add(w));
+
+  return Array.from(words);
+}
+
+/** Draw knowledge graph on canvas */
+function drawKnowledgeGraph() {
+  const canvas = document.getElementById('knowledgeGraph');
+  const container = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = container.clientWidth * dpr;
+  canvas.height = container.clientHeight * dpr;
+  canvas.style.width = container.clientWidth + 'px';
+  canvas.style.height = container.clientHeight + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  // Clear canvas
+  ctx.clearRect(0, 0, width, height);
+
+  if (AppState.graphNodes.length === 0) {
+    // Draw empty state
+    ctx.fillStyle = '#6b7394';
+    ctx.font = '14px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(AppState.currentLang === 'zh'
+      ? '上传文档后将显示知识图谱'
+      : 'Knowledge graph will appear after uploading a document',
+      centerX, centerY);
+    return;
+  }
+
+  // Simple force simulation step
+  applyForceSimulation(width, height);
+
+  // Draw edges
+  AppState.graphEdges.forEach(edge => {
+    const fromNode = AppState.graphNodes.find(n => n.id === edge.from);
+    const toNode = AppState.graphNodes.find(n => n.id === edge.to);
+    if (!fromNode || !toNode) return;
+
+    ctx.beginPath();
+    ctx.moveTo(centerX + fromNode.x, centerY + fromNode.y);
+    ctx.lineTo(centerX + toNode.x, centerY + toNode.y);
+    ctx.strokeStyle = edge.color;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Draw nodes
+  AppState.graphNodes.forEach(node => {
+    const x = centerX + node.x;
+    const y = centerY + node.y;
+
+    // Glow effect
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, node.radius * 2);
+    gradient.addColorStop(0, node.color + '40');
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, node.radius * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Node circle
+    ctx.beginPath();
+    ctx.arc(x, y, node.radius, 0, Math.PI * 2);
+    ctx.fillStyle = node.color;
+    ctx.fill();
+    ctx.strokeStyle = node.color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = '#e8eaf0';
+    ctx.font = node.type === 'center' ? 'bold 12px -apple-system, sans-serif'
+      : node.type === 'chapter' ? '11px -apple-system, sans-serif'
+      : '10px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+
+    // Truncate label if too long
+    const maxLabelLen = node.type === 'center' ? 16 : 12;
+    const label = node.label.length > maxLabelLen
+      ? node.label.substring(0, maxLabelLen) + '...'
+      : node.label;
+
+    ctx.fillText(label, x, y + node.radius + 4);
+  });
+}
+
+/** Simple force-directed layout simulation */
+function applyForceSimulation(width, height) {
+  const nodes = AppState.graphNodes;
+  const edges = AppState.graphEdges;
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  // Repulsion between nodes
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[j].x - nodes[i].x;
+      const dy = nodes[j].y - nodes[i].y;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const force = 800 / (dist * dist);
+      const fx = (dx / dist) * force;
+      const fy = (dy / dist) * force;
+
+      nodes[i].x -= fx;
+      nodes[i].y -= fy;
+      nodes[j].x += fx;
+      nodes[j].y += fy;
+    }
+  }
+
+  // Attraction along edges
+  edges.forEach(edge => {
+    const fromNode = nodes.find(n => n.id === edge.from);
+    const toNode = nodes.find(n => n.id === edge.to);
+    if (!fromNode || !toNode) return;
+
+    const dx = toNode.x - fromNode.x;
+    const dy = toNode.y - fromNode.y;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    const force = (dist - 100) * 0.01;
+    const fx = (dx / dist) * force;
+    const fy = (dy / dist) * force;
+
+    fromNode.x += fx;
+    fromNode.y += fy;
+    toNode.x -= fx;
+    toNode.y -= fy;
+  });
+
+  // Center gravity
+  nodes.forEach(node => {
+    if (node.type === 'center') return;
+    node.x += (0 - node.x) * 0.02;
+    node.y += (0 - node.y) * 0.02;
+  });
+
+  // Keep center node at origin
+  const centerNode = nodes.find(n => n.type === 'center');
+  if (centerNode) {
+    centerNode.x = 0;
+    centerNode.y = 0;
+  }
+
+  // Boundary constraints
+  const maxDist = Math.min(width, height) / 2 - 40;
+  nodes.forEach(node => {
+    const dist = Math.sqrt(node.x * node.x + node.y * node.y);
+    if (dist > maxDist) {
+      node.x = (node.x / dist) * maxDist;
+      node.y = (node.y / dist) * maxDist;
+    }
+  });
+}
+
+/** Refresh/redraw knowledge graph */
+function refreshKnowledgeGraph() {
+  if (AppState.chapters.length > 0) {
+    buildKnowledgeGraph();
+  }
+  drawKnowledgeGraph();
+}
+
+// ============================================
+// Window Resize Handler
+// ============================================
+window.addEventListener('resize', () => {
+  drawKnowledgeGraph();
+});
+
+// ============================================
+// Editor auto-parse on content change
+// ============================================
+document.getElementById('scriptEditor').addEventListener('input', () => {
+  // Debounced parse
+  clearTimeout(AppState._editorTimer);
+  AppState._editorTimer = setTimeout(() => {
+    const script = document.getElementById('scriptEditor').value;
+    if (script.trim()) {
+      parseScriptSections(script);
+      estimateTotalDuration();
+    }
+  }, 500);
+});
+
+// ============================================
+// Application Initialization
+// ============================================
+(function init() {
+  // Initialize i18n
+  updateI18N();
+
+  // Initialize voices
+  initVoices();
+
+  // Draw initial empty knowledge graph
+  drawKnowledgeGraph();
+
+  // Set initial theme label
+  document.getElementById('themeLabel').textContent = 'Dark';
+})();
+</script>
+</body>
+</html>

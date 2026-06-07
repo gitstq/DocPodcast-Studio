@@ -1,0 +1,26 @@
+{
+  "name": "docpodcast-studio",
+  "version": "1.0.0",
+  "description": "DocPodcast Studio - A lightweight document-to-AI-podcast engine. Pure frontend, zero dependencies, transforms documents into interactive AI podcasts directly in the browser.",
+  "license": "MIT",
+  "keywords": [
+    "podcast",
+    "document",
+    "tts",
+    "text-to-speech",
+    "ai",
+    "markdown",
+    "knowledge-graph",
+    "browser",
+    "frontend",
+    "zero-dependency"
+  ],
+  "author": "DocPodcast Studio",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "scripts": {
+    "start": "echo \"Open index.html in your browser to start.\" && exit 0"
+  }
+}
